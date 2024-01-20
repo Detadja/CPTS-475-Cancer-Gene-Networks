@@ -1,0 +1,521 @@
+---
+title: "Protein_Interaction_Network"
+author: "Pei-Yau Weng and Denise Tanumihardja"
+date: "2022-11-01"
+output: html_document
+---
+```{r}
+library(STRINGdb)
+library(tidyverse)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(igraph)
+library(dplyr)
+library(ggraph)
+library(HPAanalyze)
+```
+```{r}
+STRINGdb$methods()
+```
+```{r}
+STRINGdb$help("map")
+```
+```{r}
+string_db <- STRINGdb$new(version = "11", species = 9606, score_threshold = 400, input_directory = "")
+
+#gene = read.csv("Breast_key_genes.csv")
+breast = read.csv("Breast_key_genes.csv")
+prost = read.csv("Prost_key_genes.csv")
+eso = read.csv("Eso_key_genes.csv")
+head = read.csv("Head_key_genes.csv")
+
+biliary = read.csv("Biliary_key_genes.csv")
+bone = read.csv("Bone_key_genes.csv")
+cns = read.csv("CNS_key_genes.csv")
+kidney = read.csv("Kidney_key_genes.csv")
+liver = read.csv("Liver_key_genes.csv")
+lymph = read.csv("Lymph_key_genes.csv")
+myeloid = read.csv("Myeloid_key_genes.csv")
+ovary = read.csv("Ovary_key_genes.csv")
+panc = read.csv("Panc_key_genes.csv")
+skin = read.csv("Skin_key_genes.csv")
+stomach = read.csv("Stomach_key_genes.csv")
+
+#print(gene$SYMBOL)
+breast$SYMBOL
+prost$SYMBOL
+eso$SYMBOL
+head$SYMBOL
+
+biliary$SYMBOL
+bone$SYMBOL
+cns$SYMBOL
+kidney$SYMBOL
+liver$SYMBOL
+lymph$SYMBOL
+myeloid$SYMBOL
+ovary$SYMBOL
+panc$SYMBOL
+skin$SYMBOL
+stomach$SYMBOL
+#gene = data.frame(geneID = gene)
+#print(gene["geneID"])
+```
+
+```{r}
+#data_mapped <- string_db$map(gene, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_breast <- string_db$map(breast, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_prost <- string_db$map(prost, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_eso <- string_db$map(eso, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_head <- string_db$map(head, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+ 
+data_mapped_biliary <- string_db$map(biliary, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_bone <- string_db$map(bone, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_cns <- string_db$map(cns, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_kidney <- string_db$map(kidney, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_liver <- string_db$map(liver, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_lymph <- string_db$map(lymph, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_myeloid <- string_db$map(myeloid, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_ovary <- string_db$map(ovary, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_panc <- string_db$map(panc, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_skin <- string_db$map(skin, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+data_mapped_stomach <- string_db$map(stomach, my_data_frame_id_col_names = "SYMBOL", removeUnmappedRows = TRUE)
+```
+```{r}
+#string_db$plot_network( data_mapped$STRING_id )
+string_db$plot_network(data_mapped_breast$STRING_id)
+string_db$plot_network(data_mapped_prost$STRING_id)
+string_db$plot_network(data_mapped_eso$STRING_id)
+string_db$plot_network(data_mapped_head$STRING_id)
+
+string_db$plot_network(data_mapped_biliary$STRING_id)
+string_db$plot_network(data_mapped_bone$STRING_id)
+string_db$plot_network(data_mapped_cns$STRING_id)
+string_db$plot_network(data_mapped_kidney$STRING_id)
+string_db$plot_network(data_mapped_liver$STRING_id)
+string_db$plot_network(data_mapped_lymph$STRING_id)
+string_db$plot_network(data_mapped_myeloid$STRING_id)
+string_db$plot_network(data_mapped_ovary$STRING_id)
+string_db$plot_network(data_mapped_panc$STRING_id)
+string_db$plot_network(data_mapped_skin$STRING_id)
+string_db$plot_network(data_mapped_stomach$STRING_id)
+```
+
+```{r}
+#string_db$plot_network( data_mapped$STRING_id[1:500] )
+```
+```{r}
+#interaction_score_df = string_db$get_interactions(data_mapped$STRING_id)
+inter_score_df_breast = string_db$get_interactions(data_mapped_breast$STRING_id)
+inter_score_df_prost = string_db$get_interactions(data_mapped_prost$STRING_id)
+inter_score_df_eso = string_db$get_interactions(data_mapped_eso$STRING_id)
+inter_score_df_head = string_db$get_interactions(data_mapped_head$STRING_id)
+
+inter_score_df_biliary = string_db$get_interactions(data_mapped_biliary$STRING_id)
+inter_score_df_bone = string_db$get_interactions(data_mapped_bone$STRING_id)
+inter_score_df_cns = string_db$get_interactions(data_mapped_cns$STRING_id)
+inter_score_df_kidney = string_db$get_interactions(data_mapped_kidney$STRING_id)
+inter_score_df_liver = string_db$get_interactions(data_mapped_liver$STRING_id)
+inter_score_df_lymph = string_db$get_interactions(data_mapped_lymph$STRING_id)
+inter_score_df_myeloid = string_db$get_interactions(data_mapped_myeloid$STRING_id)
+inter_score_df_ovary = string_db$get_interactions(data_mapped_ovary$STRING_id)
+inter_score_df_panc = string_db$get_interactions(data_mapped_panc$STRING_id)
+inter_score_df_skin = string_db$get_interactions(data_mapped_skin$STRING_id)
+inter_score_df_stomch = string_db$get_interactions(data_mapped_stomach$STRING_id)
+
+#interaction_score_df
+```
+```{r}
+# links = interaction_score_df %>% 
+#   mutate(from=data_mapped[match(from, data_mapped$STRING_id), "SYMBOL"]) %>% 
+#   mutate(to=data_mapped[match(to, data_mapped$STRING_id), "SYMBOL"]) %>% 
+#   distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+#   rename("combined_score" = "weight")
+
+links_breast = inter_score_df_breast %>%
+  mutate(from=data_mapped_breast[match(from, data_mapped_breast$STRING_id), "SYMBOL"]) %>%
+  mutate(to=data_mapped_breast[match(to, data_mapped_breast$STRING_id), "SYMBOL"]) %>%
+  distinct(from, to, combined_score, .keep_all=TRUE) %>%
+  rename("combined_score" = "weight")
+
+links_prost = inter_score_df_prost %>%
+  mutate(from=data_mapped_prost[match(from, data_mapped_prost$STRING_id), "SYMBOL"]) %>%
+  mutate(to=data_mapped_prost[match(to, data_mapped_prost$STRING_id), "SYMBOL"]) %>%
+  distinct(from, to, combined_score, .keep_all=TRUE) %>%
+  rename("combined_score" = "weight")
+
+links_eso = inter_score_df_eso %>%
+  mutate(from=data_mapped_eso[match(from, data_mapped_eso$STRING_id), "SYMBOL"]) %>%
+  mutate(to=data_mapped_eso[match(to, data_mapped_eso$STRING_id), "SYMBOL"]) %>%
+  distinct(from, to, combined_score, .keep_all=TRUE) %>%
+  rename("combined_score" = "weight")
+
+links_head = inter_score_df_head %>%
+  mutate(from=data_mapped_head[match(from, data_mapped_head$STRING_id), "SYMBOL"]) %>%
+  mutate(to=data_mapped_head[match(to, data_mapped_head$STRING_id), "SYMBOL"]) %>%
+  distinct(from, to, combined_score, .keep_all=TRUE) %>%
+  rename("combined_score" = "weight")
+
+links_biliary = inter_score_df_biliary %>% 
+  mutate(from=data_mapped_biliary[match(from, data_mapped_biliary$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_biliary[match(to, data_mapped_biliary$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_bone = inter_score_df_bone %>% 
+  mutate(from=data_mapped_bone[match(from, data_mapped_bone$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_bone[match(to, data_mapped_bone$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_cns = inter_score_df_cns %>% 
+  mutate(from=data_mapped_cns[match(from, data_mapped_cns$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_cns[match(to, data_mapped_cns$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_kidney = inter_score_df_kidney %>% 
+  mutate(from=data_mapped_kidney[match(from, data_mapped_kidney$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_kidney[match(to, data_mapped_kidney$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_liver = inter_score_df_liver %>% 
+  mutate(from=data_mapped_liver[match(from, data_mapped_liver$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_liver[match(to, data_mapped_liver$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_lymph = inter_score_df_lymph %>% 
+  mutate(from=data_mapped_lymph[match(from, data_mapped_lymph$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_lymph[match(to, data_mapped_lymph$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_myeloid= inter_score_df_myeloid %>% 
+  mutate(from=data_mapped_myeloid[match(from, data_mapped_myeloid$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_myeloid[match(to, data_mapped_myeloid$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_ovary = inter_score_df_ovary %>% 
+  mutate(from=data_mapped_ovary[match(from, data_mapped_ovary$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_ovary[match(to, data_mapped_ovary$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_panc = inter_score_df_panc %>% 
+  mutate(from=data_mapped_panc[match(from, data_mapped_panc$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_panc[match(to, data_mapped_panc$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_skin = inter_score_df_skin %>% 
+  mutate(from=data_mapped_skin[match(from, data_mapped_skin$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_skin[match(to, data_mapped_skin$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+links_stomach = inter_score_df_stomch %>% 
+  mutate(from=data_mapped_stomach[match(from, data_mapped_stomach$STRING_id), "SYMBOL"]) %>% 
+  mutate(to=data_mapped_stomach[match(to, data_mapped_stomach$STRING_id), "SYMBOL"]) %>% 
+  distinct(from, to, combined_score, .keep_all=TRUE) %>% 
+  rename("combined_score" = "weight")
+
+#links
+```
+```{r}
+# nodes = links %>% 
+#   {data.frame(gene=c(.$from, .$to))} %>% 
+#   distinct()
+
+nodes_breast = links_breast %>% 
+  {data.frame(breast=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_prost = links_prost %>% 
+  {data.frame(prost=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_eso = links_eso %>% 
+  {data.frame(eso=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_head= links_head %>% 
+  {data.frame(head=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_biliary = links_biliary %>% 
+  {data.frame(biliary=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_bone = links_bone %>% 
+  {data.frame(bone=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_cns = links_cns %>% 
+  {data.frame(cns=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_kidney = links_kidney %>% 
+  {data.frame(kidney=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_liver = links_liver %>% 
+  {data.frame(liver=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_lymph = links_lymph %>% 
+  {data.frame(lymph=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_myeloid = links_myeloid %>% 
+  {data.frame(myeloid=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_ovary = links_ovary %>% 
+  {data.frame(ovary=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_panc = links_panc %>% 
+  {data.frame(panc=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_skin = links_skin %>% 
+  {data.frame(skin=c(.$from, .$to))} %>% 
+  distinct()
+
+nodes_stomach = links_stomach %>% 
+  {data.frame(stomach=c(.$from, .$to))} %>% 
+  distinct()
+
+```
+```{r}
+#PPI_network = igraph::graph_from_data_frame(d=links, vertices=nodes, directed=FALSE)
+PPInet_breast = igraph::graph_from_data_frame(d=links_breast, vertices=nodes_breast, directed=FALSE)
+PPInet_prost = igraph::graph_from_data_frame(d=links_prost, vertices=nodes_prost, directed=FALSE)
+PPInet_eso = igraph::graph_from_data_frame(d=links_eso, vertices=nodes_eso, directed=FALSE)
+PPInet_head = igraph::graph_from_data_frame(d=links_head, vertices=nodes_head, directed=FALSE)
+
+PPInet_biliary = igraph::graph_from_data_frame(d=links_biliary, vertices=nodes_biliary, directed=FALSE)
+PPInet_bone = igraph::graph_from_data_frame(d=links_bone, vertices=nodes_bone, directed=FALSE)
+PPInet_cns = igraph::graph_from_data_frame(d=links_cns, vertices=nodes_cns, directed=FALSE)
+PPInet_kidney = igraph::graph_from_data_frame(d=links_kidney, vertices=nodes_kidney, directed=FALSE)
+PPInet_liver = igraph::graph_from_data_frame(d=links_liver, vertices=nodes_liver, directed=FALSE)
+PPInet_lymph = igraph::graph_from_data_frame(d=links_lymph, vertices=nodes_lymph, directed=FALSE)
+PPInet_myeloid = igraph::graph_from_data_frame(d=links_myeloid, vertices=nodes_myeloid, directed=FALSE)
+PPInet_ovary = igraph::graph_from_data_frame(d=links_ovary, vertices=nodes_ovary, directed=FALSE)
+PPInet_panc = igraph::graph_from_data_frame(d=links_panc, vertices=nodes_panc, directed=FALSE)
+PPInet_skin = igraph::graph_from_data_frame(d=links_skin, vertices=nodes_skin, directed=FALSE)
+PPInet_stomach = igraph::graph_from_data_frame(d=links_stomach, vertices=nodes_stomach, directed=FALSE)
+```
+```{r}
+# igraph::V(PPI_network)$deg <- igraph::degree(PPI_network)
+# igraph::V(PPI_network)$size <- igraph::degree(PPI_network)/5
+# igraph::E(PPI_network)$width <- igraph::E(PPI_network)$weight/10
+
+igraph::V(PPInet_breast)$deg <- igraph::degree(PPInet_breast)
+igraph::V(PPInet_breast)$size <- igraph::degree(PPInet_breast)/5
+igraph::E(PPInet_breast)$width <- igraph::E(PPInet_breast)$weight/10
+
+igraph::V(PPInet_prost)$deg <- igraph::degree(PPInet_prost)
+igraph::V(PPInet_prost)$size <- igraph::degree(PPInet_prost)/5
+igraph::E(PPInet_prost)$width <- igraph::E(PPInet_prost)$weight/10
+
+igraph::V(PPInet_eso)$deg <- igraph::degree(PPInet_eso)
+igraph::V(PPInet_eso)$size <- igraph::degree(PPInet_eso)/5
+igraph::E(PPInet_eso)$width <- igraph::E(PPInet_eso)$weight/10
+
+igraph::V(PPInet_head)$deg <- igraph::degree(PPInet_head)
+igraph::V(PPInet_head)$size <- igraph::degree(PPInet_head)/5
+igraph::E(PPInet_head)$width <- igraph::E(PPInet_head)$weight/10
+
+igraph::V(PPInet_biliary)$deg <- igraph::degree(PPInet_biliary)
+igraph::V(PPInet_biliary)$size <- igraph::degree(PPInet_biliary)/5
+igraph::E(PPInet_biliary)$width <- igraph::E(PPInet_biliary)$weight/10
+
+igraph::V(PPInet_bone)$deg <- igraph::degree(PPInet_bone)
+igraph::V(PPInet_bone)$size <- igraph::degree(PPInet_bone)/5
+igraph::E(PPInet_bone)$width <- igraph::E(PPInet_bone)$weight/10
+
+igraph::V(PPInet_cns)$deg <- igraph::degree(PPInet_cns)
+igraph::V(PPInet_cns)$size <- igraph::degree(PPInet_cns)/5
+igraph::E(PPInet_cns)$width <- igraph::E(PPInet_cns)$weight/10
+
+igraph::V(PPInet_kidney)$deg <- igraph::degree(PPInet_kidney)
+igraph::V(PPInet_kidney)$size <- igraph::degree(PPInet_kidney)/5
+igraph::E(PPInet_kidney)$width <- igraph::E(PPInet_kidney)$weight/10
+
+igraph::V(PPInet_liver)$deg <- igraph::degree(PPInet_liver)
+igraph::V(PPInet_liver)$size <- igraph::degree(PPInet_liver)/5
+igraph::E(PPInet_liver)$width <- igraph::E(PPInet_liver)$weight/10
+
+igraph::V(PPInet_lymph)$deg <- igraph::degree(PPInet_lymph)
+igraph::V(PPInet_lymph)$size <- igraph::degree(PPInet_lymph)/5
+igraph::E(PPInet_lymph)$width <- igraph::E(PPInet_lymph)$weight/10
+
+igraph::V(PPInet_myeloid)$deg <- igraph::degree(PPInet_myeloid)
+igraph::V(PPInet_myeloid)$size <- igraph::degree(PPInet_myeloid)/5
+igraph::E(PPInet_myeloid)$width <- igraph::E(PPInet_myeloid)$weight/10
+
+igraph::V(PPInet_ovary)$deg <- igraph::degree(PPInet_ovary)
+igraph::V(PPInet_ovary)$size <- igraph::degree(PPInet_ovary)/5
+igraph::E(PPInet_ovary)$width <- igraph::E(PPInet_ovary)$weight/10
+
+igraph::V(PPInet_panc)$deg <- igraph::degree(PPInet_panc)
+igraph::V(PPInet_panc)$size <- igraph::degree(PPInet_panc)/5
+igraph::E(PPInet_panc)$width <- igraph::E(PPInet_panc)$weight/10
+
+igraph::V(PPInet_skin)$deg <- igraph::degree(PPInet_skin)
+igraph::V(PPInet_skin)$size <- igraph::degree(PPInet_skin)/5
+igraph::E(PPInet_skin)$width <- igraph::E(PPInet_skin)$weight/10
+
+igraph::V(PPInet_stomach)$deg <- igraph::degree(PPInet_stomach)
+igraph::V(PPInet_stomach)$size <- igraph::degree(PPInet_stomach)/5
+igraph::E(PPInet_stomach)$width <- igraph::E(PPInet_stomach)$weight/10
+```
+```{r}
+hpaVisPatho(targetGene = c("TP53"))
+```
+
+```{r}
+# Breast
+ggraph(PPInet_breast,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("TP53", "RB1", "PTEN", "PIK3CA", "EGFR"), targetCancer = c("breast cancer"))
+```
+```{r}
+hpaVisTissue(targetGene = c("TP53", "RB1", "PTEN", "PIK3CA", "EGFR"), targetTissue = c("breast", "adipose tissue", "endometrium", "placenta"))
+```
+
+```{r}
+# Prostate
+ggraph(PPInet_prost,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("TP53", "NF1", "KEAP1", "KMT2C", "SPOP"), targetCancer = c("prostate cancer"))
+```
+
+
+```{r}
+# Esophageal
+ggraph(PPInet_eso,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("PTEN", "CDKN2A", "PIK3CA", "RB1", "TP53", "EGFR"), targetCancer = c("esophagus cancer"))
+```
+```{r}
+hpaVisTissue(targetGene = c("PTEN", "CDKN2A", "PIK3CA", "RB1", "TP53", "EGFR"), targetTissue = c("esophagus"))
+```
+
+```{r}
+# Head
+ggraph(PPInet_head,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("CDKN2A", "PIK3CA", "TP53"), targetCancer = c("head and neck cancer"))
+```
+```{r}
+#hpaVisTissue(targetGene = c("TP53", "CDKN2A", "PIK3CA", "ARID1A"), targetTissue = c("cerebellum", "cerebral cortex", "hippocampus"))
+```
+
+```{r}
+# Biliary
+ggraph(PPInet_biliary,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+
+```{r}
+hpaVis(visType="Patho",targetGene = c("GRIN2A", "KRAS", "PTEN", "TP53"), targetCancer = c("bile duct cancer"))
+```
+```{r}
+hpaVisTissue(targetGene = c("GRIN2A", "KRAS", "PTEN", "TP53"), targetTissue = c("gallbladder"))
+```
+
+```{r}
+# Bone #Ignore this cancer
+ggraph(PPInet_bone,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+#hpaVis(visType="Patho",targetGene = c("ATM", "TP53"), targetCancer = c("bone cancer"))
+```
+```{r}
+#hpaVisTissue(targetGene = c("ATM", "TP53"), targetTissue = c("bone marrow"))
+```
+
+```{r}
+# CNS #ignore this cancer
+ggraph(PPInet_cns,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+#hpaVis(visType="Patho",targetGene = c("KMT2C", "EGFR", "KMT2D", "CTNNB1", "SMARCA4"), targetCancer = c("cns cancer"))
+```
+
+```{r}
+# Kidney
+ggraph(PPInet_kidney,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("MTOR", "PTEN", "TP53", "ATM"), targetCancer = c("renal cancer"))
+```
+
+```{r}
+# Liver
+ggraph(PPInet_liver,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("GRIN2A", "CDKN2A", "KRAS", "PIK3CA", "TP53", "CTNNB1", "NF1", "NRAS"), targetCancer = c("liver cancer"))
+```
+
+```{r}
+# Lymph
+ggraph(PPInet_lymph,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("CDKN2A", "TP53", "KMT2D", "ARID1A", "NRAS", "SMARCA4", "GRIN2A"), targetCancer = c("lymphoma"))
+```
+
+```{r}
+# Myeloid
+ggraph(PPInet_myeloid,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("KEAP1", "TP53", "EGFR", "ATM", "FBXW7", "NF1", "NRAS", "GRIN2A", "SMARCA4"), targetCancer = c(""))
+```
+```{r}
+hpaVisTissue(targetGene = c("KEAP1", "TP53", "EGFR", "ATM", "FBXW7", "NF1", "NRAS", "GRIN2A", "SMARCA4"), targetTissue = c("bone marrow"))
+```
+
+```{r}
+# Ovary
+ggraph(PPInet_ovary,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("GRIN2A", "KRAS", "TP53", "ATM", "NF1"), targetCancer = c("ovarian cancer"))
+```
+
+```{r}
+# Pancreas
+ggraph(PPInet_panc,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("GRIN2A", "CDKN2A", "KRAS", "PIK3CA", "TP53", "CASP8"), targetCancer = c("pancreatic cancer"))
+```
+
+```{r}
+# Skin
+ggraph(PPInet_skin,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("BRAF", "PTPRT", "TP53", "GRIN2A"), targetCancer = c("melanoma"))
+```
+
+```{r}
+# Stomach
+ggraph(PPInet_stomach,layout = "linear", circular = TRUE) + geom_edge_arc(aes(filter=weight<=900, edge_width=width), color = "lightblue", show.legend = FALSE) + geom_edge_arc(aes(filter=weight>900, edge_width=width, label=weight), color = "pink", show.legend = FALSE) + geom_node_point(aes(size=size), color="red", alpha=0.7) + geom_node_text(aes(label=name), size = 5, repel = FALSE) + scale_edge_width(range = c(0.1, 3)) + scale_size_continuous(range = c(1,10) ) + guides(size=F) + theme_graph()
+```
+```{r}
+hpaVis(visType="Patho",targetGene = c("GRIN2A", "SMARCA4", "KRAS", "PIK3CA", "RB1", "TP53", "EGFR", "ATM", "BRAF", "CTNNB1", "NF1", "MTOR", "PTEN"), targetCancer = c("stomach cancer"))
+```
+
+
